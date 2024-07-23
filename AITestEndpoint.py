@@ -153,22 +153,24 @@ def call_openai_function(prompt, extra_context=None):
     messages = create_messages(prompt, repo_context, extra_context)
     tools = create_tools()
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=messages,
-        functions=tools,
-        function_call="auto"
-    )
+    client = openai.OpenAI()
 
-    if response.choices[0].message.get("function_call"):
-        function_call = response.choices[0].message["function_call"]
-        print("Made tool call:")
-        print(f"Tool Name: {function_call['name']}")
-        print(f"Arguments: {function_call['arguments']}")
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        tools=tools,
+        n=1,
+        tool_choice="auto"
+    )
+    if response.choices[0].message.tool_calls:
+        for tool_call in response.choices[0].message.tool_calls:
+            print("Made tool call:")
+            print(f"Tool Name: {tool_call.function.name}")
+            print(f"Arguments: {tool_call.function.arguments}")
     else:
         print("No tool call made.")
 
-    return response.choices[0].message["content"]
+    return response.choices[0].message
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
