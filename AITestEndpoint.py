@@ -72,7 +72,9 @@ def create_messages(prompt, repo_context="", extra_context=None):
         "Do not make up an answer to questions that are not related to the query. "
         "Prioritize using tool calls to perform the tasks when possible. "
         "Do not explicitly mention the tool in the response. "
-        "There is no need to provide the full code or yaml in the message response unless specifically asked for. "
+        "There is no need to provide the full code or YAML in the message response unless specifically requested by the user. "
+        "If a request is ambiguous or requires additional information, ask the user for clarification. "
+        "Ensure all generated configurations adhere to security best practices and are optimized for performance. "
     )
 
     messages = [
@@ -173,4 +175,4 @@ def call_openai_function(prompt, extra_context=None):
     return response.choices[0].message
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
